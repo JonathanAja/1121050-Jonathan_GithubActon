@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -247,40 +246,6 @@ func GetDetailUserTransaction(w http.ResponseWriter, r *http.Request) {
 		var response ErrorResponse
 		response.Status = 400
 		response.Message = "Error Array Size Not Correct"
-		json.NewEncoder(w).Encode(response)
-	}
-}
-
-func login(w http.ResponseWriter, r *http.Request) {
-	db := connect()
-	defer db.Close()
-
-	err := r.ParseForm()
-	if err != nil {
-		sendErrorResponse(w, "Failed to login!")
-		return
-	}
-
-	email := r.Form.Get("email")
-	password := r.Form.Get("password")
-	platform := r.Header.Get("platform")
-
-	var user User
-	errQuery := db.QueryRow("SELECT id, name, age, address FROM users WHERE email = ? and password = ?", email, password).Scan(&user.ID, &user.Name, &user.Age, &user.Address)
-	if errQuery != nil {
-		if errQuery == sql.ErrNoRows {
-			sendErrorResponse(w, "Wrong email or password")
-		} else {
-			fmt.Println(errQuery)
-			sendErrorResponse(w, "Something went wrong, please try again")
-		}
-		return
-	} else {
-		var response UserResponse
-		response.Status = 200
-		response.Message = "Login success " + platform
-		response.Data = user
-		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
 	}
 }
