@@ -169,6 +169,34 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+
+	db := connect()
+	defer db.Close()
+	err := r.ParseForm()
+	if err != nil {
+		return
+	}
+	vars := mux.Vars(r)
+	userId := vars["user_id"]
+	fmt.Println(userId)
+
+	_, errQuery := db.Exec("DELETE FROM users WHERE id=?",
+		userId,
+	)
+	var response UserResponse
+	if errQuery == nil {
+		response.Status = 200
+		response.Message = "Success"
+	} else {
+		fmt.Println(errQuery)
+		response.Status = 400
+		response.Message = "Delete Failed!"
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	db := connect()
 	defer db.Close()
